@@ -1,0 +1,69 @@
+{% extends 'books/base.html' %}
+
+{% block title %}Update Book{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
+  <h2 class="text-2xl font-semibold text-center text-primary mb-4">Update Book</h2>
+  <form id="updateBookForm">
+    <div class="mb-4">
+      <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+      <input type="text" id="title" name="title" value="{{ book.title }}" class="input input-bordered w-full" required>
+    </div>
+    <button type="submit" class="btn btn-accent w-full">Update Book</button>
+  </form>
+
+  <div id="alertContainer" class="mt-4"></div>
+</div>
+
+<script>
+  document.getElementById('updateBookForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const title = document.getElementById('title').value;
+    const bookId = "{{ book.id }}";
+
+    fetch("{% url 'update_book' book.id %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}',
+      },
+      body: JSON.stringify({ title: title, id: bookId }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const alertContainer = document.getElementById('alertContainer');
+      alertContainer.innerHTML = '';
+
+      if (data.errors) {
+        const errorAlert = `<div class="alert alert-error">
+                              <div>
+                                <span>Error: ${data.errors.join(", ")}</span>
+                              </div>
+                            </div>`;
+        alertContainer.innerHTML = errorAlert;
+      } else {
+        const successAlert = `<div class="alert alert-success">
+                                <div>
+                                  <span>Book updated successfully: ${data.book.title}</span>
+                                </div>
+                              </div>`;
+        alertContainer.innerHTML = successAlert;
+        document.getElementById('title').value = data.book.title
+
+        // document.getElementById('updateBookForm').reset();
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      const alertContainer = document.getElementById('alertContainer');
+      alertContainer.innerHTML = `<div class="alert alert-error">
+                                   <div>
+                                     <span>An error occurred while updating the book.</span>
+                                   </div>
+                                 </div>`;
+    });
+  });
+</script>
+{% endblock %}
