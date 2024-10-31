@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "graphene_django",
     "book",
+    "warehouse",
 ]
 
 GRAPHENE = {"SCHEMA": "graphql_bookstore.schema.schema"}
