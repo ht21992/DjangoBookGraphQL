@@ -135,7 +135,7 @@ class CreateBook(graphene.Mutation):
 
 class UpdateBook(graphene.Mutation):
     class Arguments:
-        book_id = graphene.Int(required=True)
+        book_id = graphene.UUID(required=True)
         title = graphene.String()
         publisher = graphene.String()
         series = graphene.String()

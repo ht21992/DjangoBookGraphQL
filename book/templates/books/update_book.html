@@ -1,19 +1,49 @@
-
-<div class="max-w-md mx-auto  rounded-lg p-6">
+<div class="max-w-md mx-auto rounded-lg p-6">
   <h2 class="text-2xl font-semibold text-center text-primary mb-4">Update Book</h2>
   <form id="updateBookForm">
     <div class="mb-4">
       <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
       <input type="text" id="title" name="title" value="{{ book.title }}" class="input input-bordered w-full" required>
     </div>
+    <div class="mb-4">
+      <label for="publisher" class="block text-sm font-medium text-gray-700">Publisher</label>
+      <input type="text" id="publisher" name="publisher" value="{{ book.publisher }}" class="input input-bordered w-full">
+    </div>
+    <div class="mb-4">
+      <label for="series" class="block text-sm font-medium text-gray-700">Series</label>
+      <input type="text" id="series" name="series" value="{{ book.series }}" class="input input-bordered w-full">
+    </div>
+    <div class="mb-4">
+      <label for="language" class="block text-sm font-medium text-gray-700">Language</label>
+      <input type="text" id="language" name="language" value="{{ book.language }}" class="input input-bordered w-full">
+    </div>
+    <div class="mb-4">
+      <label for="isbn" class="block text-sm font-medium text-gray-700">ISBN</label>
+      <input type="text" id="isbn" name="isbn" value="{{ book.isbn }}" class="input input-bordered w-full">
+    </div>
+    <div class="mb-4">
+      <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+      <textarea id="description" name="description" class="input input-bordered w-full">{{ book.description }}</textarea>
+    </div>
+    <div class="mb-4">
+      <label for="rating" class="block text-sm font-medium text-gray-700">Rating</label>
+      <input type="number" id="rating" name="rating" value="{{ book.rating }}" class="input input-bordered w-full" step="0.1" min="0" max="5">
+
+    </div>
+    <div class="mb-4">
+      <label for="pages" class="block text-sm font-medium text-gray-700">Pages</label>
+      <input type="number" id="pages" name="pages" value="{{ book.pages }}" class="input input-bordered w-full" min="1">
+    </div>
+    <div class="mb-4">
+      <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+      <input type="number" id="price" name="price" value="{{ book.price }}" class="input input-bordered w-full" step="0.01">
+    </div>
+    <div class="mb-4">
+      <label for="image" class="block text-sm font-medium text-gray-700">Image URL</label>
+      <input type="text" id="image" name="image" value="{{ book.image }}" class="input input-bordered w-full">
+    </div>
     <button type="submit" class="btn btn-accent w-full">Update Book</button>
-    <button
-    type="button"
-    id="closeModalBtn"
-    class="close-modal btn btn-info text-white w-full mt-4"
-  >
-    Close
-  </button>
+    <button type="button" id="closeModalBtn" class="close-modal btn btn-info text-white w-full mt-4">Close</button>
   </form>
 
   <div id="alertContainer" class="mt-4"></div>
@@ -24,7 +54,18 @@
     event.preventDefault();
 
     const title = document.getElementById('title').value;
+    const publisher = document.getElementById('publisher').value;
+    const series = document.getElementById('series').value;
+    const language = document.getElementById('language').value;
+    const isbn = document.getElementById('isbn').value;
+    const description = document.getElementById('description').value;
+    const rating = parseFloat(document.getElementById('rating').value);
+    const pages = parseInt(document.getElementById('pages').value);
+    const price = parseFloat(document.getElementById('price').value);
+    const image = document.getElementById('image').value;
     const bookId = "{{ book.id }}";
+    const generIds = []; // Populate with actual genre IDs if necessary
+    const characterIds = []; // Populate with actual character IDs if necessary
 
     fetch("{% url 'update_book' book.id %}", {
       method: 'POST',
@@ -32,7 +73,13 @@
         'Content-Type': 'application/json',
         'X-CSRFToken': '{{ csrf_token }}',
       },
-      body: JSON.stringify({ title: title, id: bookId }),
+      body: JSON.stringify({
+        title, publisher, series, language,
+        isbn, description, rating,
+        pages, price, image,
+        gener_ids: generIds,
+        character_ids: characterIds
+      }),
     })
     .then(response => response.json())
     .then(data => {
@@ -54,18 +101,13 @@
                               </div>`;
         alertContainer.innerHTML = successAlert;
         document.getElementById('title').value = data.book.title
-
-        // document.getElementById('updateBookForm').reset();
+        // Reset or update other fields if necessary
       }
     })
     .catch(error => {
       console.error('Error:', error);
       const alertContainer = document.getElementById('alertContainer');
-      alertContainer.innerHTML = `<div class="alert alert-error">
-                                   <div>
-                                     <span>An error occurred while updating the book.</span>
-                                   </div>
-                                 </div>`;
+      alertContainer.innerHTML = `<div class="alert alert-error"><span>Error updating book.</span></div>`;
     });
   });
 </script>

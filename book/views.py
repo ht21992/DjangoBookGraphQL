@@ -5,6 +5,7 @@ from graphql_bookstore.schema import schema
 import json
 import time
 import uuid
+from decimal import Decimal
 
 # # Create a new book
 # def create_book(request):
@@ -40,8 +41,6 @@ def create_book(request):
 
         result = schema.execute(mutation)
 
-
-
         if result.errors:
             return JsonResponse(
                 {"errors": [str(error) for error in result.errors]}, status=400
@@ -69,20 +68,56 @@ def create_book(request):
 #             return JsonResponse({"message": "Book updated successfully"})
 #     return render(request, "books/update_book.html", {"book": book})
 
-
 def update_book(request, book_id):
     if request.method == "POST":
         body = json.loads(request.body)
+
         title = body.get("title")
-        book_id = body.get("id")
+        publisher = body.get("publisher")
+        series = body.get("series")
+        language = body.get("language")
+        isbn = body.get("isbn")
+        description = body.get("description")
+        rating = body.get("rating")
+        pages = body.get("pages")
+        price = body.get("price")
+        image = body.get("image")
+        gener_ids = body.get("gener_ids", [])
+        character_ids = body.get("character_ids", [])
 
         if title and str(book_id) == str(book_id):
+            # Convert to Decimal for price and rating
+            price = str(price) if price is not None else None
+            rating = str(rating) if rating is not None else None
+
+            # Escape the title and other fields as necessary
+            title = title.replace('"', '\\"') if title else None
+            publisher = publisher.replace('"', '\\"') if publisher else None
+            series = series.replace('"', '\\"') if series else None
+            language = language.replace('"', '\\"') if language else None
+            isbn = isbn.replace('"', '\\"') if isbn else None
+            description = description.replace('"', '\\"') if description else None
+            image = image.replace('"', '\\"') if image else None
+
+            # Create mutation string
             mutation = f"""
             mutation {{
-                updateBook(bookId: {book_id}, title: "{title}") {{
+                updateBook(bookId: "{book_id}", title: "{title}", publisher: "{publisher}", series: "{series}",
+                            language: "{language}", isbn: "{isbn}", description: "{description}",
+                            rating: {rating}, pages: {pages}, price: {price}, image: "{image}",
+                            generIds: {json.dumps(gener_ids)}, characterIds: {json.dumps(character_ids)}) {{
                     book {{
                         id
                         title
+                        publisher
+                        series
+                        language
+                        isbn
+                        description
+                        rating
+                        pages
+                        price
+                        image
                     }}
                 }}
             }}
@@ -106,6 +141,7 @@ def update_book(request, book_id):
 
     book = get_object_or_404(Book, id=book_id)
     return render(request, "books/update_book.html", {"book": book})
+
 
 
 # Delete a book
@@ -188,6 +224,5 @@ def fetch_books_from_graphql(request):
 
     if int(jsResp):
         return JsonResponse({"books": books}, status=200)
-
 
     return render(request, "books/book_list.html", {"books": books})
