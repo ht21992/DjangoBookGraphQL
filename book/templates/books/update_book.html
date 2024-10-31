@@ -1,9 +1,5 @@
-{% extends 'books/base.html' %}
 
-{% block title %}Update Book{% endblock %}
-
-{% block content %}
-<div class="max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
+<div class="max-w-md mx-auto  rounded-lg p-6">
   <h2 class="text-2xl font-semibold text-center text-primary mb-4">Update Book</h2>
   <form id="updateBookForm">
     <div class="mb-4">
@@ -11,7 +7,13 @@
       <input type="text" id="title" name="title" value="{{ book.title }}" class="input input-bordered w-full" required>
     </div>
     <button type="submit" class="btn btn-accent w-full">Update Book</button>
-    <a href="{% url 'fetch_books' %}" class="btn btn-info w-full mt-4 text-white">Cancel</a>
+    <button
+    type="button"
+    id="closeModalBtn"
+    class="close-modal btn btn-info text-white w-full mt-4"
+  >
+    Close
+  </button>
   </form>
 
   <div id="alertContainer" class="mt-4"></div>
@@ -67,4 +69,3 @@
     });
   });
 </script>
-{% endblock %}

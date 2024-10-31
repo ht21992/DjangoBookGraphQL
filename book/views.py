@@ -4,6 +4,7 @@ from django.http import JsonResponse, HttpResponse
 from graphql_bookstore.schema import schema
 import json
 import time
+import uuid
 
 # # Create a new book
 # def create_book(request):
@@ -139,7 +140,7 @@ def delete_book(request, book_id):
         start = time.perf_counter()
         mutation = f"""
         mutation {{
-            deleteBook(bookId: {int(book_id)}) {{
+            deleteBook(bookId: "{uuid.UUID(book_id)}") {{
                 success
             }}
         }}

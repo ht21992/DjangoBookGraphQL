@@ -1,9 +1,5 @@
-{% extends 'books/base.html' %}
 
-{% block title %}Create Book{% endblock %}
-
-{% block content %}
-<div class="max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
+<div class="max-w-md mx-auto rounded-lg p-6">
   <h2 class="text-2xl font-semibold text-center text-primary mb-4">Create a New Book</h2>
   <form id="createBookForm">
     <div class="mb-4">
@@ -14,12 +10,19 @@
       <label for="author_id" class="block text-sm font-medium text-gray-700">Author</label>
       <select id="author_id" name="author_id" class="select select-bordered w-full" required>
         <option value="">Select Author</option>
-        {% for author in authors %}
+        <!-- {% for author in authors %}
           <option value="{{ author.id }}">{{ author.name }}</option>
-        {% endfor %}
+        {% endfor %} -->
       </select>
     </div>
     <button type="submit" class="btn btn-accent w-full">Create Book</button>
+    <button
+    type="button"
+    id="closeModalBtn"
+    class="close-modal btn btn-info text-white w-full mt-4"
+  >
+    Close
+  </button>
   </form>
 
   <div id="alertContainer" class="mt-4"></div>
@@ -74,4 +77,4 @@
     });
   });
 </script>
-{% endblock %}
+
