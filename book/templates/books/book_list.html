@@ -1,16 +1,29 @@
 {% extends 'books/base.html' %}
 
+
 {% block title %}Book List{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
+
+<div class="max-w-3xl mx-auto bg-white rounded-lg p-6">
   <h2 class="text-2xl font-semibold text-center text-primary mb-4">Books</h2>
+  <div class="flex ">
+    <div class="m-auto">
+      <input type="text" placeholder="Search" class="input input-bordered w-full max-w-xs text-center" />
+    </div>
+  </div>
+
   <ul class="space-y-4">
     {% for book in books %}
       <li class="flex justify-between items-center p-4 border-b border-gray-200">
         <div>
+          <div class="avatar">
+            <div class="w-20 rounded">
+              <img src="{{book.image}}" />
+            </div>
+          </div>
           <h3 class="font-semibold">{{ book.title }}</h3>
-          <p class="text-gray-600">Author: {{ book.author.name }} {{book.id}}</p>
+          <p class="text-gray-600">Author: {{ book.author.name }}</p>
         </div>
         <div class="flex space-x-2">
           <a href="{% url 'update_book' book.id %}" class="text-blue-500 hover:text-blue-700">
@@ -24,6 +37,60 @@
     {% empty %}
       <li class="p-4 text-center text-gray-500">No books found.</li>
     {% endfor %}
+
+
   </ul>
+  <div class="flex ">
+    <div class="m-auto">
+      <span id="loadingIcon" class="loading loading-bars loading-lg text-info"></span>
+    </div>
+  </div>
+
 </div>
+
+
+
+<script>
+  let offset = 10;
+  window.addEventListener("scroll", () => {
+
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+
+      fetch(`/?offset=${offset}&jsResp=1`)
+        .then(document.getElementById("loadingIcon").style.display = "block")
+        .then(response => response.json())
+        .then(data => {
+          data.books.forEach(book => {
+            document.querySelector("ul").insertAdjacentHTML(
+              "beforeend",
+              `<li class="flex justify-between items-center p-4 border-b border-gray-200">
+                 <div>
+                   <div class="avatar">
+                     <div class="w-20 rounded">
+                       <img src="${book.image}" />
+                     </div>
+                   </div>
+                   <h3 class="font-semibold">${book.title}</h3>
+                   <p class="text-gray-600">Author: ${book.author.name}</p>
+                 </div>
+                 <div class="flex space-x-2">
+                   <a href="books/update/${book.id}" class="text-blue-500 hover:text-blue-700">
+                     <i class="fas fa-edit"></i>
+                   </a>
+                   <a href="books/delete/${book.id}" class="text-red-500 hover:text-red-700">
+                     <i class="fas fa-trash-alt"></i>
+                   </a>
+                 </div>
+               </li>`
+            );
+          });
+          offset += data.books.length;
+          document.getElementById("loadingIcon").style.display = "none"
+        });
+    }
+  });
+  </script>
+
 {% endblock %}
+
+

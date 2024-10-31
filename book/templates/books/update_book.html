@@ -11,6 +11,7 @@
       <input type="text" id="title" name="title" value="{{ book.title }}" class="input input-bordered w-full" required>
     </div>
     <button type="submit" class="btn btn-accent w-full">Update Book</button>
+    <a href="{% url 'fetch_books' %}" class="btn btn-info w-full mt-4 text-white">Cancel</a>
   </form>
 
   <div id="alertContainer" class="mt-4"></div>

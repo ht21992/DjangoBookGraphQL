@@ -39,6 +39,8 @@ def create_book(request):
 
         result = schema.execute(mutation)
 
+
+
         if result.errors:
             return JsonResponse(
                 {"errors": [str(error) for error in result.errors]}, status=400
@@ -158,11 +160,15 @@ def delete_book(request, book_id):
 
 
 def fetch_books_from_graphql(request):
+    limit = 10
+    offset = int(request.GET.get("offset", 0))
+    jsResp = request.GET.get("jsResp", 0)
     query = """
-    query {
-      allBooks {
+    query allBooks($limit: Int, $offset: Int) {
+      allBooks(limit: $limit, offset: $offset) {
         id
         title
+        image
         author {
           name
         }
@@ -170,11 +176,17 @@ def fetch_books_from_graphql(request):
     }
     """
 
-    result = schema.execute(query)
+    variables = {"limit": limit, "offset": offset}
+
+    result = schema.execute(query, variables=variables)
 
     if result.errors:
         return HttpResponse("Error fetching data", status=400)
 
     books = result.data["allBooks"]
+
+    if int(jsResp):
+        return JsonResponse({"books": books}, status=200)
+
 
     return render(request, "books/book_list.html", {"books": books})
