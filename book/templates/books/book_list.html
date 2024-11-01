@@ -1,22 +1,44 @@
 {% extends 'books/base.html' %}
 
+
 {% block title %}Book List{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
-  <h2 class="text-2xl font-semibold text-center text-primary mb-4">Books</h2>
-  <ul class="space-y-4">
+
+<div class="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8 space-y-6">
+  <h2 class="text-3xl font-bold text-center text-primary mb-6">Book Collection</h2>
+
+  <div class="flex justify-center mb-6">
+    <input type="text" placeholder="Search books..." class="input input-bordered w-3/4 max-w-md text-center shadow-md" />
+  </div>
+
+  <ul class="grid grid-cols-1 gap-6">
     {% for book in books %}
-      <li class="flex justify-between items-center p-4 border-b border-gray-200">
-        <div>
-          <h3 class="font-semibold">{{ book.title }}</h3>
-          <p class="text-gray-600">Author: {{ book.author.name }} {{book.id}}</p>
+      <li id="book-{{book.id}}" class="bg-gray-50 rounded-lg shadow-md p-5 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <div class="avatar">
+            <div class="w-16 h-16 rounded-lg overflow-hidden">
+              <img src="{{ book.image }}" class="object-cover" alt="Book cover" />
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold">{{ book.title }}</h3>
+            <p class="text-gray-500">Author: {{ book.author.name }}</p>
+          </div>
         </div>
-        <div class="flex space-x-2">
-          <a href="{% url 'update_book' book.id %}" class="text-blue-500 hover:text-blue-700">
+        <div class="flex space-x-4">
+          <a href="#" class="text-blue-500 hover:text-blue-700"
+             hx-get="{% url 'update_book' book.id %}"
+             hx-target="#modal-content"
+             hx-trigger="click"
+             hx-swap="innerHTML">
             <i class="fas fa-edit"></i>
           </a>
-          <a href="{% url 'delete_book' book.id %}" class="text-red-500 hover:text-red-700">
+          <a href="#" class="text-red-500 hover:text-red-700"
+             hx-get="{% url 'delete_book' book.id %}"
+             hx-target="#modal-content"
+             hx-trigger="click"
+             hx-swap="innerHTML">
             <i class="fas fa-trash-alt"></i>
           </a>
         </div>
@@ -25,5 +47,84 @@
       <li class="p-4 text-center text-gray-500">No books found.</li>
     {% endfor %}
   </ul>
+
+  <div class="flex justify-center mt-6">
+    <span id="loadingIcon" class="loading loading-bars loading-lg text-info"></span>
+  </div>
 </div>
+
+
+
+<script>
+let offset = 10;
+const bookList = document.querySelector("ul");
+
+window.addEventListener("scroll", () => {
+  if (window.innerHeight + window.scrollY + 100 >= document.body.offsetHeight) {
+    document.getElementById("loadingIcon").style.display = "block";
+
+    fetch(`/?offset=${offset}&jsResp=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.books.length > 0) {
+          data.books.forEach(book => {
+            // Check for duplicate before adding
+            const existingBook = document.getElementById(`book-${book.id}`);
+            if (!existingBook) {
+              const newBookHTML = `
+                <li id="book-${book.id}" class="flex justify-between items-center p-4 border-b border-gray-200">
+                  <div>
+                    <div class="avatar">
+                      <div class="w-20 rounded">
+                        <img src="${book.image}" />
+                      </div>
+                    </div>
+                    <h3 class="font-semibold">${book.title}</h3>
+                    <p class="text-gray-600">Author: ${book.author.name}</p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <a href="#"
+                       hx-get="books/update/${book.id}"
+                       hx-target="#modal-content"
+                       hx-trigger="click"
+                       hx-swap="innerHTML"
+                       class="text-blue-500 hover:text-blue-700">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="#"
+                       hx-get="books/delete/${book.id}"
+                       hx-target="#modal-content"
+                       hx-trigger="click"
+                       hx-swap="innerHTML"
+                       class="text-red-500 hover:text-red-700">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </li>`;
+
+              bookList.insertAdjacentHTML("beforeend", newBookHTML);
+              htmx.process(bookList.lastElementChild); // Process the new element with htmx
+            }
+          });
+
+          offset += data.books.length;
+        } else {
+          console.log("No more books to load.");
+        }
+
+        document.getElementById("loadingIcon").style.display = "none";
+      })
+      .catch(error => {
+        console.error("Error fetching data:", error);
+        document.getElementById("loadingIcon").style.display = "none";
+      });
+  }
+});
+
+
+
+  </script>
+
 {% endblock %}
+
+

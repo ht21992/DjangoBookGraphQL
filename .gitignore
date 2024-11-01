@@ -13,6 +13,9 @@ staticfiles/
 .env
 *.env
 
+#Files
+booksDataSet.csv
+
 # Virtual environment
 venv/
 env/
