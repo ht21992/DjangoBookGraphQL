@@ -25,6 +25,12 @@ class GenreStatsType(graphene.ObjectType):
     book_count = graphene.Int()
     avg_rating = graphene.Float()
 
+class AuthorStatsType(graphene.ObjectType):
+    id = graphene.ID()
+    name = graphene.String()
+    book_count = graphene.Int()
+    avg_rating = graphene.Float()
+
 
 
 # Queries to retrieve books, authors, genres, characters
@@ -45,8 +51,8 @@ class Query(graphene.ObjectType):
     )
     books_by_author = graphene.List(BookType, author_id=graphene.Int())
     books_by_character = graphene.List(BookType, character_id=graphene.Int())
-
     genre_stats = graphene.List(GenreStatsType, order_by=graphene.String(), asc=graphene.Boolean(),limit=graphene.Int(), offset=graphene.Int())
+    author_stats = graphene.List(AuthorStatsType, order_by=graphene.String(), asc=graphene.Boolean(),limit=graphene.Int(), offset=graphene.Int())
 
     def resolve_all_characters(root, info,limit=None, offset=None):
         """resolver is a function that fetch the data for a specific field in a schema"""
@@ -101,6 +107,16 @@ class Query(graphene.ObjectType):
 
     def resolve_genre_stats(root, info, order_by = None, asc=True, limit=None, offset=None):
         queryset = Genre.objects.values('id','name').annotate(book_count=Count('books'), avg_rating=Avg('books__rating'))
+        if order_by:
+            order_by = f"{'' if asc else '-'}{order_by}"
+            queryset = queryset.order_by(order_by)
+        if limit is not None:
+            offset = offset or 0
+            queryset = queryset[offset:offset + limit]
+        return queryset
+
+    def resolve_author_stats(root, info, order_by = None, asc=True, limit=None, offset=None):
+        queryset = Author.objects.values('id','name').annotate(book_count=Count('books'), avg_rating=Avg('books__rating'))
         if order_by:
             order_by = f"{'' if asc else '-'}{order_by}"
             queryset = queryset.order_by(order_by)
