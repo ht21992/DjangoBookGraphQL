@@ -22,7 +22,7 @@
             </div>
           </div>
           <div>
-            <h3 class="text-lg font-semibold">{{ book.title }}</h3>
+            <h3 id="book-title-{{book.id}}" class="text-lg font-semibold">{{ book.title }}</h3>
             <p class="text-gray-500">Author: {{ book.author.name }}</p>
           </div>
         </div>
@@ -79,7 +79,7 @@ window.addEventListener("scroll", () => {
                         <img src="${book.image}" />
                       </div>
                     </div>
-                    <h3 class="font-semibold">${book.title}</h3>
+                    <h3 id="book-title-${book.id}" class="font-semibold">${book.title}</h3>
                     <p class="text-gray-600">Author: ${book.author.name}</p>
                   </div>
                   <div class="flex space-x-2">

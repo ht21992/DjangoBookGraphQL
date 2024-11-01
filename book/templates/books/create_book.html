@@ -1,35 +1,35 @@
-
 <div class="max-w-md mx-auto rounded-lg p-6">
   <h2 class="text-2xl font-semibold text-center text-primary mb-4">Create a New Book</h2>
   <form id="createBookForm">
     <div class="mb-4">
       <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-      <input type="text" id="title" name="title" class="input input-bordered w-full" required>
+      <input type="text" placeholder="Enter Title" id="title" name="title" class="input input-bordered w-full" required>
     </div>
-    <div class="mb-4">
-      <label for="author_id" class="block text-sm font-medium text-gray-700">Author</label>
-      <select id="author_id" name="author_id" class="select select-bordered w-full" required>
-        <option value="">Select Author</option>
-        <!-- {% for author in authors %}
-          <option value="{{ author.id }}">{{ author.name }}</option>
-        {% endfor %} -->
-      </select>
+    <div class="relative w-128">
+
+      <label for="author" class="block text-sm font-medium text-gray-700">Author</label>
+      <input type="text" id="author" placeholder="Author" class="input input-bordered w-full"
+        oninput="filterOptions(this)">
+
+      <!-- Dropdown options -->
+      <ul id="dropdown" class="my-3 dropdown-content w-full bg-white rounded-lg shadow-md max-h-48 overflow-y-auto">
+        {% for author in authors %}
+        <li><a href="#" data-value="{{ author.name }}" class="block p-2" style="display: none;">{{ author.name }}</a>
+        </li>
+        {% endfor %}
+      </ul>
     </div>
     <button type="submit" class="btn btn-accent w-full">Create Book</button>
-    <button
-    type="button"
-    id="closeModalBtn"
-    class="close-modal btn btn-info text-white w-full mt-4"
-  >
-    Close
-  </button>
+    <button type="button" id="closeModalBtn" class="close-modal btn btn-info text-white w-full mt-4">
+      Close
+    </button>
   </form>
 
   <div id="alertContainer" class="mt-4"></div>
 </div>
 
 <script>
-  document.getElementById('createBookForm').addEventListener('submit', function(event) {
+  document.getElementById('createBookForm').addEventListener('submit', function (event) {
     event.preventDefault();
 
     const title = document.getElementById('title').value;
@@ -43,38 +43,46 @@
       },
       body: JSON.stringify({ title: title, author_id: authorId }),
     })
-    .then(response => response.json())
-    .then(data => {
-      const alertContainer = document.getElementById('alertContainer');
-      alertContainer.innerHTML = '';
+      .then(response => response.json())
+      .then(data => {
+        const alertContainer = document.getElementById('alertContainer');
+        alertContainer.innerHTML = '';
 
-      if (data.errors) {
-        const errorAlert = `<div class="alert alert-error">
+        if (data.errors) {
+          const errorAlert = `<div class="alert alert-error">
                               <div>
                                 <span>Error: ${data.errors.join(", ")}</span>
                               </div>
                             </div>`;
-        alertContainer.innerHTML = errorAlert;
-      } else {
-        const successAlert = `<div class="alert alert-success">
+          alertContainer.innerHTML = errorAlert;
+        } else {
+          const successAlert = `<div class="alert alert-success">
                                 <div>
                                   <span>Book created successfully: ${data.book.title}</span>
                                 </div>
                               </div>`;
-        alertContainer.innerHTML = successAlert;
+          alertContainer.innerHTML = successAlert;
 
-        document.getElementById('createBookForm').reset();
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      const alertContainer = document.getElementById('alertContainer');
-      alertContainer.innerHTML = `<div class="alert alert-error">
+          document.getElementById('createBookForm').reset();
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        const alertContainer = document.getElementById('alertContainer');
+        alertContainer.innerHTML = `<div class="alert alert-error">
                                    <div>
                                      <span>An error occurred while creating the book.</span>
                                    </div>
                                  </div>`;
-    });
+      });
   });
-</script>
 
+  function filterOptions(input) {
+    const filter = input.value.toLowerCase();
+    const dropdown = document.getElementById('dropdown');
+    const options = dropdown.getElementsByTagName('a');
+    Array.from(options).forEach(option => {
+      option.style.display = option.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+  }
+</script>

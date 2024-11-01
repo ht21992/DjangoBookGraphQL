@@ -19,17 +19,12 @@ class BookType(DjangoObjectType):
     class Meta:
         model = Book
 
-# Queries to retrieve books and authors
-class Query1(graphene.ObjectType):
-    all_books = graphene.List(BookType)
-    all_authors = graphene.List(AuthorType)
-    books_by_author = graphene.List(BookType, author_id=graphene.Int())
-
 class GenreStatsType(graphene.ObjectType):
     id = graphene.ID()
     name = graphene.String()
     book_count = graphene.Int()
     avg_rating = graphene.Float()
+
 
 
 # Queries to retrieve books, authors, genres, characters
@@ -181,14 +176,14 @@ class DeleteBook(graphene.Mutation):
 
 
 # Root mutation class
-class Mutation1(graphene.ObjectType):
+class Mutation(graphene.ObjectType):
     create_book = CreateBook.Field()
     update_book = UpdateBook.Field()
     delete_book = DeleteBook.Field()
 
 
 # Root schema
-# schema = graphene.Schema(query=Query1, mutation=Mutation)
+schema = graphene.Schema(query=Query, mutation=Mutation)
 
 
 """
@@ -282,3 +277,7 @@ mutation {
 
 
 """
+
+
+
+	
