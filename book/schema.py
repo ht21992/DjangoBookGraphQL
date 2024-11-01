@@ -52,6 +52,7 @@ class Query(graphene.ObjectType):
         """resolver is a function that fetch the data for a specific field in a schema"""
         charactes = Character.objects.all()
         if limit is not None:
+            offset = offset or 0
             charactes = charactes[offset:offset+limit]
         return charactes
 
@@ -59,18 +60,21 @@ class Query(graphene.ObjectType):
     def resolve_all_geners(root, info,limit=None, offset=None):
         genres = Genre.objects.all()
         if limit is not None:
+            offset = offset or 0
             genres = genres[offset:offset+limit]
         return genres
 
     def resolve_all_books(root, info, limit=None, offset=None):
         books = Book.objects.select_related("author").prefetch_related("characters","geners")
         if limit is not None:
+            offset = offset or 0
             books = books[offset:offset+limit]
         return books
 
     def resolve_all_authors(root, info,limit=None, offset=None):
         authors = Author.objects.all()
         if limit is not None:
+            offset = offset or 0
             authors = authors[offset:offset+limit]
         return authors
 
@@ -85,6 +89,7 @@ class Query(graphene.ObjectType):
         if genre_id:
             queryset = queryset.filter(geners__id=genre_id)
         if limit is not None:
+            offset = offset or 0
             queryset = queryset[offset:offset + limit]
         return queryset
 
@@ -94,12 +99,13 @@ class Query(graphene.ObjectType):
     def resolve_books_by_character(root, info, character_id):
         return Book.objects.filter(characters__id=character_id).select_related("author").prefetch_related("geners", "characters")
 
-    def resolve_genre_stats(root, info, order_by = None, asc=True,limit=None, offset=None):
+    def resolve_genre_stats(root, info, order_by = None, asc=True, limit=None, offset=None):
         queryset = Genre.objects.values('id','name').annotate(book_count=Count('books'), avg_rating=Avg('books__rating'))
         if order_by:
             order_by = f"{'' if asc else '-'}{order_by}"
             queryset = queryset.order_by(order_by)
         if limit is not None:
+            offset = offset or 0
             queryset = queryset[offset:offset + limit]
         return queryset
 
@@ -280,4 +286,3 @@ mutation {
 
 
 
-	
