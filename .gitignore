@@ -15,6 +15,7 @@ staticfiles/
 
 #Files
 booksDataSet.csv
+GraphQL.txt
 
 # Virtual environment
 venv/
